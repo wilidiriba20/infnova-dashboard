@@ -6,7 +6,7 @@ import type {
   PaginationMeta,
   ReferenceItem,
 } from "../types";
-import StatusBadge from "./StatusBadge";
+import StatusBadge from "../components/StatusBadge";
 import ApplicantDetail from "./ApplicantDetail";
 
 interface Props {
