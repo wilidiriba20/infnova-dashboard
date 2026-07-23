@@ -6,7 +6,7 @@ import type {
   PaginationMeta,
   ReferenceItem,
 } from "../types";
-import StatusBadge from "../components/StatusBadge";
+import StatusBadge from "./StatusBadge";
 import ApplicantDetail from "./ApplicantDetail";
 
 interface Props {
@@ -120,13 +120,31 @@ export default function ApplicantsView({ onUnauthorized }: Props) {
   }, [filters, debouncedSearch, fetchApplicants]);
 
   function handleSearch(value: string) {
-    setFilters((f) => ({ ...f, page: 1 }));
     if (searchTimer.current) clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => setDebouncedSearch(value), 350);
+    searchTimer.current = setTimeout(() => {
+      setDebouncedSearch(value);
+      setFilters((f) => ({ ...f, search: value, page: 1 }));
+    }, 350);
   }
 
+  // ✅ Fixed: preserve the new page value when key === "page"
   function setFilter(key: keyof Filters, value: string | number) {
-    setFilters((f) => ({ ...f, [key]: value, page: 1 }));
+    setFilters((f) => ({
+      ...f,
+      [key]: value,
+      page: key === "page" ? (value as number) : 1,
+    }));
+  }
+
+  function handleClearFilters() {
+    setFilters((f) => ({
+      ...f,
+      status: "",
+      track: "",
+      country: "",
+      experienceLevel: "",
+      page: 1,
+    }));
   }
 
   function toggleSort(col: string) {
@@ -282,16 +300,7 @@ export default function ApplicantsView({ onUnauthorized }: Props) {
 
         {hasFilters && (
           <button
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                status: "",
-                track: "",
-                country: "",
-                experienceLevel: "",
-                page: 1,
-              }))
-            }
+            onClick={handleClearFilters}
             style={{
               padding: "7px 12px",
               background: "none",
@@ -804,6 +813,7 @@ function SortIcon() {
     </svg>
   );
 }
+
 function SortAscIcon() {
   return (
     <svg
@@ -823,6 +833,7 @@ function SortAscIcon() {
     </svg>
   );
 }
+
 function SortDescIcon() {
   return (
     <svg
